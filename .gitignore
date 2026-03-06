@@ -51,6 +51,19 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# Behave / Allure / test reports
+reports/
+allure-results/
+allure-report/
+coverage-html/
+.behave/
+.allure/
+junit*.xml
+
+# IDEs
+.idea/
+.vscode/
+
 # Translations
 *.mo
 *.pot
