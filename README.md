@@ -6,15 +6,15 @@ Le projet est organisé en plusieurs fichiers et dossiers. Voici la structure du
 
 test_demoblaze/
 │
-├── features/                            ← fichiers des tests BDD  Behave
+├── features/                            ← fichiers des tests **BDD**  Behave
 │   ├── __init__.py
 │   ├── environment.py
 │   ├──panier
 │   └──commande/
 │   └── steps/
 │       ├── __init__.py
-         ├──panier/ 
-         ├──commande/
+    ├──panier/ 
+    ├──commande/
 │   │
 ├── pages/
 │   ├── __init__.py
@@ -43,3 +43,7 @@ test_demoblaze/
 ├── .env.example
 ├── .env
 └── requirements.txt
+Mise en place de l'ensemble de démarche pout un projet de test. Le site à l'étude est l'e-commerce DemoBlaze.
+
+
+
