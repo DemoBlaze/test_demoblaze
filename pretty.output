@@ -162,4 +162,3 @@ Feature: Sauvegarde du panier # features/panier/persistance_panier.feature:7
     When je sauvegarde mon panier                                    # features/steps/persistance_panier.py:14
     And je restaure mon panier                                       # features/steps/persistance_panier.py:23
     Then le total calculé correspond à la somme des prix × quantités # features/steps/common_steps.py:108
-
