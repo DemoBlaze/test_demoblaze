@@ -1,0 +1,197 @@
+name: CI - Tests BDD Behave, Selenium & API
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+
+  # ── Job 1 : Lint & vérification ──────────────────────────
+  lint:
+    name: Lint du code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Installer les dépendances de lint
+        run: pip install flake8 black --break-system-packages 2>/dev/null || pip install flake8 black
+
+      - name: Vérifier le formatage (black)
+        run: black --check .
+
+      - name: Vérifier le style (flake8)
+        run: flake8 . --max-line-length=120 --exclude=.git,__pycache__,reports
+
+
+  # ── Job 2 : Tests Behave + Selenium ──────────────────────
+  test:
+    name: Tests BDD (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: lint
+
+    strategy:
+      fail-fast: false          # continue les autres browsers si l'un échoue
+      matrix:
+        browser: [chrome, firefox, safari, edge]       # ajoute firefox si besoin : [chrome, firefox]
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Installer les dépendances Python
+        run: pip install -r requirements.txt
+
+      - name: Installer Allure CLI
+        run: |
+          wget -qO- https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz | tar -xz
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
+          allure --version
+
+      # ── Setup navigateur headless ──
+      - name: Setup Chrome
+        if: matrix.browser == 'chrome'
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
+      - name: Setup ChromeDriver
+        if: matrix.browser == 'chrome'
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Setup Firefox
+        if: matrix.browser == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Setup Geckodriver
+        if: matrix.browser == 'firefox'
+        uses: browser-actions/setup-geckodriver@v1
+
+      - name: Setup Safari
+        if: matrix.browser == 'safari'
+        run: echo "Safari est préinstallé sur macOS, aucune action nécessaire"
+
+      - name: Setup Edge
+        if: matrix.browser == 'edge'
+        uses: browser-actions/setup-edge@v1
+        with:
+          edge-version: stable
+
+
+
+      # ── Créer le fichier .env depuis les secrets ──
+      - name: Créer le fichier .env
+        run: |
+          cp .env.example .env
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+          echo "BROWSER=${{ matrix.browser }}" >> .env
+          echo "HEADLESS=true" >> .env
+          echo "JIRA_URL=${{ secrets.JIRA_URL }}" >> .env
+          echo "JIRA_TOKEN=${{ secrets.JIRA_TOKEN }}" >> .env
+          echo "SQUASH_URL=${{ secrets.SQUASH_URL }}" >> .env
+          echo "SQUASH_TOKEN=${{ secrets.SQUASH_TOKEN }}" >> .env
+
+      # ── Lancer les tests Behave ──
+      - name: Lancer les tests Behave - Panier
+        run: |
+          behave features/panier \
+            --format allure_behave.formatter:AllureFormatter \
+            --outfile reports/allure-results \
+            --format pretty \
+            --no-capture \
+            --tags "~@skip"
+        env:
+          DISPLAY: ':99'        # pour Xvfb si nécessaire
+        continue-on-error: true # continue même si des tests échouent
+
+      - name: Lancer les tests Behave - Commande
+        run: |
+          behave features/commande \
+            --format allure_behave.formatter:AllureFormatter \
+            --outfile reports/allure-results \
+            --format pretty \
+            --no-capture \
+            --tags "~@skip"
+        env:
+          DISPLAY: ':99'
+        continue-on-error: true
+
+      # ── Lancer les tests API ──
+      - name: Lancer les tests API
+        run: |
+          python -m pytest api_tests/ \
+            -v \
+            --tb=short \
+            --junitxml=reports/api-results.xml
+        continue-on-error: true
+
+      # ── Générer le rapport Allure ──
+      - name: Générer le rapport Allure
+        if: always()            # toujours générer, même si tests échouent
+        run: |
+          allure generate reports/allure-results \
+            --output reports/allure-report \
+            --clean
+
+      # ── Uploader les artefacts ──
+      - name: Upload rapport Allure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-${{ matrix.browser }}
+          path: reports/allure-report/
+          retention-days: 30
+
+      - name: Upload résultats JUnit (API)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: reports/api-results.xml
+          retention-days: 30
+
+      # ── Notifier Jira/Squash (seulement sur main) ──
+      - name: Reporter vers Jira
+        if: always() && github.ref == 'refs/heads/main'
+        run: python utils/jira_reporter.py
+        env:
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+        continue-on-error: true
+
+      - name: Reporter vers Squash
+        if: always() && github.ref == 'refs/heads/main'
+        run: python utils/squash_reporter.py
+        env:
+          SQUASH_URL: ${{ secrets.SQUASH_URL }}
+          SQUASH_TOKEN: ${{ secrets.SQUASH_TOKEN }}
+        continue-on-error: true
+
+      # ── Résumé dans la PR ──
+      - name: Résumé des tests
+        if: always()
+        run: |
+          echo "## 📊 Résultats des tests" >> $GITHUB_STEP_SUMMARY
+          echo "| Navigateur | Statut |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ${{ matrix.browser }} | ${{ job.status }} |" >> $GITHUB_STEP_SUMMARY

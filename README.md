@@ -3,7 +3,7 @@ Mise en place de la structure de base pour un projet de test. Le site à l'étud
 ## Structure du projet
 Le projet est organisé en plusieurs fichiers et dossiers. Voici la structure du projet :
 
-
+```
 test_demoblaze/
 │
 ├── features/                            ← fichiers des tests BDD  Behave
@@ -13,7 +13,7 @@ test_demoblaze/
 │   └──commande/
 │   └── steps/
 │       ├── __init__.py
-         ├──panier/ 
+         ├──panier/
          ├──commande/
 │   │
 ├── pages/
@@ -43,3 +43,4 @@ test_demoblaze/
 ├── .env.example
 ├── .env
 └── requirements.txt
+````
