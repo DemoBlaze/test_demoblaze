@@ -59,6 +59,14 @@ coverage-html/
 .behave/
 .allure/
 junit*.xml
+reports/screenshots/
+pretty.output
+
+
+# Garder le dossier dans Git mais pas son contenu
+!reports/.gitkeep
+!reports/screenshots/.gitkeep
+!reports/allure-results/.gitkeep
 
 # IDEs
 .idea/

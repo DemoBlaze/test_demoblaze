@@ -1,46 +1,24 @@
-import os
-import requests
-from dotenv import load_dotenv
-
-load_dotenv()
-
-DEMOBLAZE_API = os.getenv("API_BASE_URL")
-CATEGORIES = ["phone", "notebook", "monitor"]
-
-
-def before_all(context):
-    """
-    Récupère le catalogue complet une seule fois pour toute la suite de tests.
-    context.products = {"Samsung galaxy s6": 360.0, "Nokia lumia 1520": 820.0, ...}
-    """
-    assert DEMOBLAZE_API, "Variable API_BASE_URL manquante dans le fichier .env"
-    context.api_base_url = DEMOBLAZE_API
-    context.products = {}
-
-    for cat in CATEGORIES:
-        try:
-            response = requests.post(
-                f"{context.api_base_url}/bycat", json={"cat": cat}, timeout=10
-            )
-            response.raise_for_status()
-            for item in response.json().get("Items", []):
-                context.products[item["title"]] = {
-                    "price": float(item["price"]),
-                    "id": item["id"],
-                }
-        except requests.RequestException as e:
-            raise RuntimeError(f"Impossible de récupérer le catalogue '{cat}' : {e}")
-
-    assert context.products, "Le catalogue est vide — vérifiez l'API demoblaze"
-    print(f"\n✅ Catalogue chargé : {len(context.products)} produits")
+from config.drivers import get_driver
 
 
 def before_scenario(context, scenario):
-    """Initialise un panier vide avant chaque scénario."""
-    context.cart = []
-    context.expected_total = 0.0
-    context.current_product = None
+    """Initialise le driver uniquement pour les scénarios @ui."""
+    context.driver = None
+    if "ui" in scenario.effective_tags:
+        context.driver = get_driver()
 
 
 def after_scenario(context, scenario):
-    pass
+    """Ferme le driver seulement s'il a été ouvert."""
+    if hasattr(context, "driver") and context.driver is not None:
+        if scenario.status == "failed":
+            screenshot_path = (
+                f"reports/screenshots/{scenario.name.replace(' ', '_')}.png"
+            )
+            try:
+                context.driver.save_screenshot(screenshot_path)
+                print(f"\n📸 Screenshot : {screenshot_path}")
+            except Exception:
+                pass
+        context.driver.quit()
+        context.driver = None
