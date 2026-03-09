@@ -155,19 +155,20 @@ jobs:
       - name: Setup Chrome
         if: matrix.browser == 'chrome'
         uses: browser-actions/setup-chrome@latest
+        id: setup-chrome
+        with:
+          chrome-version: latest
 
       - name: Setup ChromeDriver
         if: matrix.browser == 'chrome'
-        uses: nanasess/setup-chromedriver@v2
+        uses: browser-actions/setup-chromedriver@latest
 
       # ── Setup Firefox ──
-      - name: Setup Firefox
-        if: matrix.browser == 'firefox'
-        uses: browser-actions/setup-firefox@v1
+      - name: Setup Firefox & Geckodriver
+        uses: browser-actions/setup-firefox@latest
 
       - name: Setup Geckodriver
-        if: matrix.browser == 'firefox'
-        uses: browser-actions/setup-geckodriver@v1
+        uses: browser-actions/setup-geckodriver@latest  # correct tag
 
       - name: Créer le fichier .env
         run: |
