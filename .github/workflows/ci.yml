@@ -71,21 +71,21 @@ jobs:
       # ── Setup navigateur headless ──
       - name: Setup Chrome
         if: matrix.browser == 'chrome'
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@latest
         with:
           chrome-version: stable
 
       - name: Setup ChromeDriver
         if: matrix.browser == 'chrome'
-        uses: nanasess/setup-chromedriver@v2
+        uses: nanasess/setup-chromedriver@latest
 
       - name: Setup Firefox
         if: matrix.browser == 'firefox'
-        uses: browser-actions/setup-firefox@v1
+        uses: browser-actions/setup-firefox@latest
 
       - name: Setup Geckodriver
         if: matrix.browser == 'firefox'
-        uses: browser-actions/setup-geckodriver@v1
+        uses: browser-actions/setup-geckodriver@latest
 
       - name: Setup Safari
         if: matrix.browser == 'safari'
@@ -93,7 +93,7 @@ jobs:
 
       - name: Setup Edge
         if: matrix.browser == 'edge'
-        uses: browser-actions/setup-edge@v1
+        uses: browser-actions/setup-edge@latest
         with:
           edge-version: stable
 
