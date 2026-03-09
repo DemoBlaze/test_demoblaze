@@ -120,7 +120,7 @@ jobs:
 
 
   # ── Job 3 : Tests UI Selenium (@ui) ───────────────────────────────────────
-  # Chrome et Firefox uniquement — Safari nécessite macOS, Edge peu utile en CI
+  # Chrome et Firefox uniquement — Safari nécessite macOS,
   test-ui:
     name: Tests UI (${{ matrix.browser }})
     runs-on: ubuntu-latest
@@ -154,9 +154,7 @@ jobs:
       # ── Setup Chrome ──
       - name: Setup Chrome
         if: matrix.browser == 'chrome'
-        uses: browser-actions/setup-chrome@v1
-        with:
-          chrome-version: stable
+        uses: browser-actions/setup-chrome@latest
 
       - name: Setup ChromeDriver
         if: matrix.browser == 'chrome'
