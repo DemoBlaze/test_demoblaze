@@ -1,17 +1,29 @@
+@ui
+Feature: Affichage de la page d'accueil # features/homepage/homepage_produits.feature:2
+  En tant que visiteur du site Demoblaze
+  Je veux que la page d'accueil s'affiche correctement
+  Afin de pouvoir consulter les produits disponibles
+  Scenario: La homepage affiche des produits  # features/homepage/homepage_produits.feature:7
+    Given j'ouvre la page d'accueil           # features/steps/common_steps.py:80
+    Then le titre de la page est correct      # features/steps/homepage_produits_steps.py:6
+    And la liste des produits est visible     # features/steps/homepage_produits_steps.py:15
+    And au moins un produit est affichï¿½       # features/steps/homepage_produits_steps.py:23
+    And chaque produit a un nom et un prix    # features/steps/homepage_produits_steps.py:34
+
 Feature: Ajout de produits au panier # features/panier/ajout_panier.feature:7
 
   Background:   # features/panier/ajout_panier.feature:9
 
   Scenario: Ajout d'un produit au panier depuis la page produit            # features/panier/ajout_panier.feature:17
-    Given le catalogue de produits est chargé depuis l'API                 # None
+    Given le catalogue de produits est chargï¿½ depuis l'API                 # None
     Given mon panier est vide                                              # None
     And je suis sur la page produit de "Samsung galaxy s6"                 # None
     When je clique sur le bouton "Add to cart"                             # None
-    Then le produit "Samsung galaxy s6" est présent dans mon panier        # None
-    And la quantité du produit "Samsung galaxy s6" dans le panier est de 1 # None
+    Then le produit "Samsung galaxy s6" est prï¿½sent dans mon panier        # None
+    And la quantitï¿½ du produit "Samsung galaxy s6" dans le panier est de 1 # None
 
-  Scenario: Ajout de plusieurs produits différents au panier  # features/panier/ajout_panier.feature:29
-    Given le catalogue de produits est chargé depuis l'API    # None
+  Scenario: Ajout de plusieurs produits diffï¿½rents au panier  # features/panier/ajout_panier.feature:29
+    Given le catalogue de produits est chargï¿½ depuis l'API    # None
     Given mon panier est vide                                 # None
     And je suis sur la page produit de "Samsung galaxy s6"    # None
     When je clique sur le bouton "Add to cart"                # None
@@ -21,83 +33,83 @@ Feature: Ajout de produits au panier # features/panier/ajout_panier.feature:7
       | produit           |
       | Samsung galaxy s6 |
       | Nokia lumia 1520  |
-    And chaque produit a une quantité de 1                    # None
+    And chaque produit a une quantitï¿½ de 1                    # None
 
-  Scenario Outline: Ajout de plusieurs quantités d'un même produit -- @1.1   # features/panier/ajout_panier.feature:55
-    Given le catalogue de produits est chargé depuis l'API                   # None
+  Scenario Outline: Ajout de plusieurs quantitï¿½s d'un mï¿½me produit -- @1.1   # features/panier/ajout_panier.feature:55
+    Given le catalogue de produits est chargï¿½ depuis l'API                   # None
     Given mon panier est vide                                                # None
     And je suis sur la page produit de "Samsung galaxy s6"                   # None
     When je clique 2 fois sur le bouton "Add to cart"                        # None
-    Then la quantité du produit "Samsung galaxy s6" dans le panier est de 2  # None
+    Then la quantitï¿½ du produit "Samsung galaxy s6" dans le panier est de 2  # None
     And le sous-total du produit "Samsung galaxy s6" est correct             # None
 
-  Scenario Outline: Ajout de plusieurs quantités d'un même produit -- @1.2   # features/panier/ajout_panier.feature:56
-    Given le catalogue de produits est chargé depuis l'API                   # None
+  Scenario Outline: Ajout de plusieurs quantitï¿½s d'un mï¿½me produit -- @1.2   # features/panier/ajout_panier.feature:56
+    Given le catalogue de produits est chargï¿½ depuis l'API                   # None
     Given mon panier est vide                                                # None
     And je suis sur la page produit de "Nokia lumia 1520"                    # None
     When je clique 3 fois sur le bouton "Add to cart"                        # None
-    Then la quantité du produit "Nokia lumia 1520" dans le panier est de 3   # None
+    Then la quantitï¿½ du produit "Nokia lumia 1520" dans le panier est de 3   # None
     And le sous-total du produit "Nokia lumia 1520" est correct              # None
 
-  Scenario: Le prix du produit ajouté correspond au catalogue  # features/panier/ajout_panier.feature:63
-    Given le catalogue de produits est chargé depuis l'API     # None
+  Scenario: Le prix du produit ajoutï¿½ correspond au catalogue  # features/panier/ajout_panier.feature:63
+    Given le catalogue de produits est chargï¿½ depuis l'API     # None
     Given je suis sur la page produit de "Samsung galaxy s6"   # None
-    Then le prix affiché correspond au prix du catalogue       # None
+    Then le prix affichï¿½ correspond au prix du catalogue       # None
 
-  Scenario: Le total du panier est correct après ajout de plusieurs produits  # features/panier/ajout_panier.feature:72
-    Given le catalogue de produits est chargé depuis l'API                    # None
+  Scenario: Le total du panier est correct aprï¿½s ajout de plusieurs produits  # features/panier/ajout_panier.feature:72
+    Given le catalogue de produits est chargï¿½ depuis l'API                    # None
     Given mon panier est vide                                                 # None
     And je suis sur la page produit de "Samsung galaxy s6"                    # None
     When je clique sur le bouton "Add to cart"                                # None
     And je navigue vers la page produit de "Nokia lumia 1520"                 # None
     And je clique sur le bouton "Add to cart"                                 # None
-    Then le total du panier correspond à la somme des prix × quantités        # None
+    Then le total du panier correspond ï¿½ la somme des prix ï¿½ quantitï¿½s        # None
 
-Feature: Vérification du montant total de la commande # features/panier/panier_total.feature:7
+Feature: Vï¿½rification du montant total de la commande # features/panier/panier_total.feature:7
 
   Background:   # features/panier/panier_total.feature:9
 
   Scenario Outline: Calcul du total pour un seul produit -- @1.1   # features/panier/panier_total.feature:23
-    Given le catalogue de produits est chargé depuis l'API         # None
-    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"    # None
-    Then le total calculé correspond à 1 fois le prix du produit   # None
+    Given le catalogue de produits est chargï¿½ depuis l'API         # None
+    Given mon panier contient 1 unitï¿½(s) de "Samsung galaxy s6"    # None
+    Then le total calculï¿½ correspond ï¿½ 1 fois le prix du produit   # None
 
   Scenario Outline: Calcul du total pour un seul produit -- @1.2   # features/panier/panier_total.feature:24
-    Given le catalogue de produits est chargé depuis l'API         # None
-    Given mon panier contient 3 unité(s) de "Samsung galaxy s6"    # None
-    Then le total calculé correspond à 3 fois le prix du produit   # None
+    Given le catalogue de produits est chargï¿½ depuis l'API         # None
+    Given mon panier contient 3 unitï¿½(s) de "Samsung galaxy s6"    # None
+    Then le total calculï¿½ correspond ï¿½ 3 fois le prix du produit   # None
 
   Scenario Outline: Calcul du total pour un seul produit -- @1.3   # features/panier/panier_total.feature:25
-    Given le catalogue de produits est chargé depuis l'API         # None
-    Given mon panier contient 2 unité(s) de "Nokia lumia 1520"     # None
-    Then le total calculé correspond à 2 fois le prix du produit   # None
+    Given le catalogue de produits est chargï¿½ depuis l'API         # None
+    Given mon panier contient 2 unitï¿½(s) de "Nokia lumia 1520"     # None
+    Then le total calculï¿½ correspond ï¿½ 2 fois le prix du produit   # None
 
-  Scenario: Calcul du total pour plusieurs produits différents       # features/panier/panier_total.feature:28
-    Given le catalogue de produits est chargé depuis l'API           # None
+  Scenario: Calcul du total pour plusieurs produits diffï¿½rents       # features/panier/panier_total.feature:28
+    Given le catalogue de produits est chargï¿½ depuis l'API           # None
     Given mon panier contient les produits suivants                  # None
       | produit           | quantite |
       | Samsung galaxy s6 | 2        |
       | Nokia lumia 1520  | 1        |
       | Sony vaio i5      | 1        |
-    Then le total calculé correspond à la somme des prix × quantités # None
+    Then le total calculï¿½ correspond ï¿½ la somme des prix ï¿½ quantitï¿½s # None
 
-  Scenario: Le total est recalculé après modification de quantité    # features/panier/panier_total.feature:41
-    Given le catalogue de produits est chargé depuis l'API           # None
-    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"      # None
-    When je modifie la quantité de "Samsung galaxy s6" à 3           # None
-    Then le total calculé correspond à la somme des prix × quantités # None
+  Scenario: Le total est recalculï¿½ aprï¿½s modification de quantitï¿½    # features/panier/panier_total.feature:41
+    Given le catalogue de produits est chargï¿½ depuis l'API           # None
+    Given mon panier contient 1 unitï¿½(s) de "Samsung galaxy s6"      # None
+    When je modifie la quantitï¿½ de "Samsung galaxy s6" ï¿½ 3           # None
+    Then le total calculï¿½ correspond ï¿½ la somme des prix ï¿½ quantitï¿½s # None
 
-  Scenario: Le total est recalculé après suppression d'un produit    # features/panier/panier_total.feature:47
-    Given le catalogue de produits est chargé depuis l'API           # None
+  Scenario: Le total est recalculï¿½ aprï¿½s suppression d'un produit    # features/panier/panier_total.feature:47
+    Given le catalogue de produits est chargï¿½ depuis l'API           # None
     Given mon panier contient les produits suivants                  # None
       | produit           | quantite |
       | Samsung galaxy s6 | 1        |
       | Nokia lumia 1520  | 1        |
     When je supprime le produit "Nokia lumia 1520" du panier         # None
-    Then le total calculé correspond à la somme des prix × quantités # None
+    Then le total calculï¿½ correspond ï¿½ la somme des prix ï¿½ quantitï¿½s # None
 
-  Scenario: Le total est identique du panier jusqu'à la confirmation  # features/panier/panier_total.feature:60
-    Given le catalogue de produits est chargé depuis l'API            # None
+  Scenario: Le total est identique du panier jusqu'ï¿½ la confirmation  # features/panier/panier_total.feature:60
+    Given le catalogue de produits est chargï¿½ depuis l'API            # None
     Given mon panier contient les produits suivants                   # None
       | produit           | quantite |
       | Samsung galaxy s6 | 1        |
@@ -105,17 +117,17 @@ Feature: Vérification du montant total de la commande # features/panier/panier_t
     When je passe la commande                                         # None
     Then le total de la commande est identique au total du panier     # None
 
-  Scenario: Le total est affiché avec le bon format monétaire            # features/panier/panier_total.feature:73
-    Given le catalogue de produits est chargé depuis l'API               # None
-    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"          # None
-    Then le total est affiché avec le symbole "$" et 2 décimales exactes # None
+  Scenario: Le total est affichï¿½ avec le bon format monï¿½taire            # features/panier/panier_total.feature:73
+    Given le catalogue de produits est chargï¿½ depuis l'API               # None
+    Given mon panier contient 1 unitï¿½(s) de "Samsung galaxy s6"          # None
+    Then le total est affichï¿½ avec le symbole "$" et 2 dï¿½cimales exactes # None
 
 Feature: Sauvegarde du panier # features/panier/persistance_panier.feature:7
 
   Background:   # features/panier/persistance_panier.feature:9
 
-  Scenario: Le panier est sauvegardé avec les produits et leurs quantités  # features/panier/persistance_panier.feature:17
-    Given le catalogue de produits est chargé depuis l'API                 # None
+  Scenario: Le panier est sauvegardï¿½ avec les produits et leurs quantitï¿½s  # features/panier/persistance_panier.feature:17
+    Given le catalogue de produits est chargï¿½ depuis l'API                 # None
     Given mon panier est vide                                              # None
     And mon panier contient les produits suivants                          # None
       | produit           | quantite |
@@ -123,13 +135,13 @@ Feature: Sauvegarde du panier # features/panier/persistance_panier.feature:7
       | Nokia lumia 1520  | 1        |
     When je sauvegarde mon panier                                          # None
     And je restaure mon panier                                             # None
-    Then le panier restauré contient les produits suivants                 # None
+    Then le panier restaurï¿½ contient les produits suivants                 # None
       | produit           | quantite |
       | Samsung galaxy s6 | 2        |
       | Nokia lumia 1520  | 1        |
 
-  Scenario: La sauvegarde reflète la suppression d'un produit du panier    # features/panier/persistance_panier.feature:31
-    Given le catalogue de produits est chargé depuis l'API                 # None
+  Scenario: La sauvegarde reflï¿½te la suppression d'un produit du panier    # features/panier/persistance_panier.feature:31
+    Given le catalogue de produits est chargï¿½ depuis l'API                 # None
     Given mon panier est vide                                              # None
     And mon panier contient les produits suivants                          # None
       | produit           | quantite |
@@ -138,11 +150,11 @@ Feature: Sauvegarde du panier # features/panier/persistance_panier.feature:7
     When je supprime le produit "Nokia lumia 1520" du panier               # None
     And je sauvegarde mon panier                                           # None
     And je restaure mon panier                                             # None
-    Then le produit "Nokia lumia 1520" n'est plus présent dans le panier   # None
-    And le produit "Samsung galaxy s6" est toujours présent dans le panier # None
+    Then le produit "Nokia lumia 1520" n'est plus prï¿½sent dans le panier   # None
+    And le produit "Samsung galaxy s6" est toujours prï¿½sent dans le panier # None
 
-  Scenario: Le panier sauvegardé peut être utilisé pour passer commande  # features/panier/persistance_panier.feature:44
-    Given le catalogue de produits est chargé depuis l'API               # None
+  Scenario: Le panier sauvegardï¿½ peut ï¿½tre utilisï¿½ pour passer commande  # features/panier/persistance_panier.feature:44
+    Given le catalogue de produits est chargï¿½ depuis l'API               # None
     Given mon panier est vide                                            # None
     And mon panier contient les produits suivants                        # None
       | produit           | quantite |
@@ -152,8 +164,8 @@ Feature: Sauvegarde du panier # features/panier/persistance_panier.feature:7
     And je passe la commande                                             # None
     Then le total de la commande est identique au total du panier        # None
 
-  Scenario: Le total du panier restauré est correct                  # features/panier/persistance_panier.feature:55
-    Given le catalogue de produits est chargé depuis l'API           # None
+  Scenario: Le total du panier restaurï¿½ est correct                  # features/panier/persistance_panier.feature:55
+    Given le catalogue de produits est chargï¿½ depuis l'API           # None
     Given mon panier est vide                                        # None
     And mon panier contient les produits suivants                    # None
       | produit           | quantite |
@@ -161,4 +173,4 @@ Feature: Sauvegarde du panier # features/panier/persistance_panier.feature:7
       | Nokia lumia 1520  | 1        |
     When je sauvegarde mon panier                                    # None
     And je restaure mon panier                                       # None
-    Then le total calculé correspond à la somme des prix × quantités # None
+    Then le total calculï¿½ correspond ï¿½ la somme des prix ï¿½ quantitï¿½s # None
