@@ -1,0 +1,36 @@
+# .pre-commit-config.yaml
+repos:
+
+  # ── Vérifications générales ──────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace       # supprime les espaces en fin de ligne
+      - id: end-of-file-fixer         # assure une ligne vide en fin de fichier
+      - id: check-yaml                # valide les fichiers YAML
+      - id: check-merge-conflict      # détecte les conflits non résolus
+      - id: detect-private-key        # bloque si une clé privée est committée
+      - id: check-added-large-files   # bloque les fichiers > 500KB
+        args: ['--maxkb=500']
+
+  # ── Formatage Python (Black) ─────────────────────
+  - repo: https://github.com/psf/black
+    rev: 26.3.0
+    hooks:
+      - id: black
+
+  # ── Lint Python (Flake8) ─────────────────────────
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+        args: [--max-line-length=120]
+        exclude: reports/
+
+  # # ── Détection de secrets dans le code ────────────
+  # - repo: https://github.com/Yelp/detect-secrets
+  #   rev: v1.5.0
+  #   hooks:
+  #     - id: detect-secrets
+  #       args: ['--baseline', '.secrets.baseline']
+  #       exclude: .env.example
