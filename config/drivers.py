@@ -2,6 +2,7 @@
 import os
 from selenium import webdriver
 
+
 def get_driver(browser=None):
     browser = browser or os.getenv("BROWSER", "chrome")
 
@@ -23,8 +24,9 @@ def get_driver(browser=None):
 
     elif browser == "mobile":
         options = webdriver.ChromeOptions()
-        options.add_experimental_option("mobileEmulation",
-            {"deviceName": "iPhone 12 Pro"})
+        options.add_experimental_option(
+            "mobileEmulation", {"deviceName": "iPhone 12 Pro"}
+        )
         return webdriver.Chrome(options=options)
 
     else:

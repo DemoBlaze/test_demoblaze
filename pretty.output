@@ -3,163 +3,162 @@ Feature: Ajout de produits au panier # features/panier/ajout_panier.feature:7
   Background:   # features/panier/ajout_panier.feature:9
 
   Scenario: Ajout d'un produit au panier depuis la page produit            # features/panier/ajout_panier.feature:17
-    Given le catalogue de produits est chargé depuis l'API                 # features/steps/common_steps.py:35
-    Given mon panier est vide                                              # features/steps/common_steps.py:44
-    And je suis sur la page produit de "Samsung galaxy s6"                 # features/steps/common_steps.py:51
-    When je clique sur le bouton "Add to cart"                             # features/steps/ajout_panier_steps.py:12
-    Then le produit "Samsung galaxy s6" est présent dans mon panier        # features/steps/ajout_panier_steps.py:51
-    And la quantité du produit "Samsung galaxy s6" dans le panier est de 1 # features/steps/ajout_panier_steps.py:62
+    Given le catalogue de produits est chargé depuis l'API                 # None
+    Given mon panier est vide                                              # None
+    And je suis sur la page produit de "Samsung galaxy s6"                 # None
+    When je clique sur le bouton "Add to cart"                             # None
+    Then le produit "Samsung galaxy s6" est présent dans mon panier        # None
+    And la quantité du produit "Samsung galaxy s6" dans le panier est de 1 # None
 
   Scenario: Ajout de plusieurs produits différents au panier  # features/panier/ajout_panier.feature:29
-    Given le catalogue de produits est chargé depuis l'API    # features/steps/common_steps.py:35
-    Given mon panier est vide                                 # features/steps/common_steps.py:44
-    And je suis sur la page produit de "Samsung galaxy s6"    # features/steps/common_steps.py:51
-    When je clique sur le bouton "Add to cart"                # features/steps/ajout_panier_steps.py:12
-    And je navigue vers la page produit de "Nokia lumia 1520" # features/steps/ajout_panier_steps.py:40
-    And je clique sur le bouton "Add to cart"                 # features/steps/ajout_panier_steps.py:12
-    Then mon panier contient les produits suivants            # features/steps/ajout_panier_steps.py:75
+    Given le catalogue de produits est chargé depuis l'API    # None
+    Given mon panier est vide                                 # None
+    And je suis sur la page produit de "Samsung galaxy s6"    # None
+    When je clique sur le bouton "Add to cart"                # None
+    And je navigue vers la page produit de "Nokia lumia 1520" # None
+    And je clique sur le bouton "Add to cart"                 # None
+    Then mon panier contient les produits suivants            # None
       | produit           |
       | Samsung galaxy s6 |
       | Nokia lumia 1520  |
-    And chaque produit a une quantité de 1                    # features/steps/ajout_panier_steps.py:87
+    And chaque produit a une quantité de 1                    # None
 
   Scenario Outline: Ajout de plusieurs quantités d'un même produit -- @1.1   # features/panier/ajout_panier.feature:55
-    Given le catalogue de produits est chargé depuis l'API                   # features/steps/common_steps.py:35
-    Given mon panier est vide                                                # features/steps/common_steps.py:44
-    And je suis sur la page produit de "Samsung galaxy s6"                   # features/steps/common_steps.py:51
-    When je clique 2 fois sur le bouton "Add to cart"                        # features/steps/ajout_panier_steps.py:34
-    Then la quantité du produit "Samsung galaxy s6" dans le panier est de 2  # features/steps/ajout_panier_steps.py:62
-    And le sous-total du produit "Samsung galaxy s6" est correct             # features/steps/ajout_panier_steps.py:96
+    Given le catalogue de produits est chargé depuis l'API                   # None
+    Given mon panier est vide                                                # None
+    And je suis sur la page produit de "Samsung galaxy s6"                   # None
+    When je clique 2 fois sur le bouton "Add to cart"                        # None
+    Then la quantité du produit "Samsung galaxy s6" dans le panier est de 2  # None
+    And le sous-total du produit "Samsung galaxy s6" est correct             # None
 
   Scenario Outline: Ajout de plusieurs quantités d'un même produit -- @1.2   # features/panier/ajout_panier.feature:56
-    Given le catalogue de produits est chargé depuis l'API                   # features/steps/common_steps.py:35
-    Given mon panier est vide                                                # features/steps/common_steps.py:44
-    And je suis sur la page produit de "Nokia lumia 1520"                    # features/steps/common_steps.py:51
-    When je clique 3 fois sur le bouton "Add to cart"                        # features/steps/ajout_panier_steps.py:34
-    Then la quantité du produit "Nokia lumia 1520" dans le panier est de 3   # features/steps/ajout_panier_steps.py:62
-    And le sous-total du produit "Nokia lumia 1520" est correct              # features/steps/ajout_panier_steps.py:96
+    Given le catalogue de produits est chargé depuis l'API                   # None
+    Given mon panier est vide                                                # None
+    And je suis sur la page produit de "Nokia lumia 1520"                    # None
+    When je clique 3 fois sur le bouton "Add to cart"                        # None
+    Then la quantité du produit "Nokia lumia 1520" dans le panier est de 3   # None
+    And le sous-total du produit "Nokia lumia 1520" est correct              # None
 
   Scenario: Le prix du produit ajouté correspond au catalogue  # features/panier/ajout_panier.feature:63
-    Given le catalogue de produits est chargé depuis l'API     # features/steps/common_steps.py:35
-    Given je suis sur la page produit de "Samsung galaxy s6"   # features/steps/common_steps.py:51
-    Then le prix affiché correspond au prix du catalogue       # features/steps/ajout_panier_steps.py:107
+    Given le catalogue de produits est chargé depuis l'API     # None
+    Given je suis sur la page produit de "Samsung galaxy s6"   # None
+    Then le prix affiché correspond au prix du catalogue       # None
 
   Scenario: Le total du panier est correct après ajout de plusieurs produits  # features/panier/ajout_panier.feature:72
-    Given le catalogue de produits est chargé depuis l'API                    # features/steps/common_steps.py:35
-    Given mon panier est vide                                                 # features/steps/common_steps.py:44
-    And je suis sur la page produit de "Samsung galaxy s6"                    # features/steps/common_steps.py:51
-    When je clique sur le bouton "Add to cart"                                # features/steps/ajout_panier_steps.py:12
-    And je navigue vers la page produit de "Nokia lumia 1520"                 # features/steps/ajout_panier_steps.py:40
-    And je clique sur le bouton "Add to cart"                                 # features/steps/ajout_panier_steps.py:12
-    Then le total du panier correspond à la somme des prix × quantités        # features/steps/ajout_panier_steps.py:118
+    Given le catalogue de produits est chargé depuis l'API                    # None
+    Given mon panier est vide                                                 # None
+    And je suis sur la page produit de "Samsung galaxy s6"                    # None
+    When je clique sur le bouton "Add to cart"                                # None
+    And je navigue vers la page produit de "Nokia lumia 1520"                 # None
+    And je clique sur le bouton "Add to cart"                                 # None
+    Then le total du panier correspond à la somme des prix × quantités        # None
 
 Feature: Vérification du montant total de la commande # features/panier/panier_total.feature:7
 
   Background:   # features/panier/panier_total.feature:9
 
   Scenario Outline: Calcul du total pour un seul produit -- @1.1   # features/panier/panier_total.feature:23
-    Given le catalogue de produits est chargé depuis l'API         # features/steps/common_steps.py:35
-    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"    # features/steps/common_steps.py:59
-    Then le total calculé correspond à 1 fois le prix du produit   # features/steps/panier_total_steps.py:32
+    Given le catalogue de produits est chargé depuis l'API         # None
+    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"    # None
+    Then le total calculé correspond à 1 fois le prix du produit   # None
 
   Scenario Outline: Calcul du total pour un seul produit -- @1.2   # features/panier/panier_total.feature:24
-    Given le catalogue de produits est chargé depuis l'API         # features/steps/common_steps.py:35
-    Given mon panier contient 3 unité(s) de "Samsung galaxy s6"    # features/steps/common_steps.py:59
-    Then le total calculé correspond à 3 fois le prix du produit   # features/steps/panier_total_steps.py:32
+    Given le catalogue de produits est chargé depuis l'API         # None
+    Given mon panier contient 3 unité(s) de "Samsung galaxy s6"    # None
+    Then le total calculé correspond à 3 fois le prix du produit   # None
 
   Scenario Outline: Calcul du total pour un seul produit -- @1.3   # features/panier/panier_total.feature:25
-    Given le catalogue de produits est chargé depuis l'API         # features/steps/common_steps.py:35
-    Given mon panier contient 2 unité(s) de "Nokia lumia 1520"     # features/steps/common_steps.py:59
-    Then le total calculé correspond à 2 fois le prix du produit   # features/steps/panier_total_steps.py:32
+    Given le catalogue de produits est chargé depuis l'API         # None
+    Given mon panier contient 2 unité(s) de "Nokia lumia 1520"     # None
+    Then le total calculé correspond à 2 fois le prix du produit   # None
 
   Scenario: Calcul du total pour plusieurs produits différents       # features/panier/panier_total.feature:28
-    Given le catalogue de produits est chargé depuis l'API           # features/steps/common_steps.py:35
-    Given mon panier contient les produits suivants                  # features/steps/common_steps.py:71
+    Given le catalogue de produits est chargé depuis l'API           # None
+    Given mon panier contient les produits suivants                  # None
       | produit           | quantite |
       | Samsung galaxy s6 | 2        |
       | Nokia lumia 1520  | 1        |
       | Sony vaio i5      | 1        |
-    Then le total calculé correspond à la somme des prix × quantités # features/steps/common_steps.py:108
+    Then le total calculé correspond à la somme des prix × quantités # None
 
   Scenario: Le total est recalculé après modification de quantité    # features/panier/panier_total.feature:41
-    Given le catalogue de produits est chargé depuis l'API           # features/steps/common_steps.py:35
-    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"      # features/steps/common_steps.py:59
-    When je modifie la quantité de "Samsung galaxy s6" à 3           # features/steps/panier_total_steps.py:18
-    Then le total calculé correspond à la somme des prix × quantités # features/steps/common_steps.py:108
+    Given le catalogue de produits est chargé depuis l'API           # None
+    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"      # None
+    When je modifie la quantité de "Samsung galaxy s6" à 3           # None
+    Then le total calculé correspond à la somme des prix × quantités # None
 
   Scenario: Le total est recalculé après suppression d'un produit    # features/panier/panier_total.feature:47
-    Given le catalogue de produits est chargé depuis l'API           # features/steps/common_steps.py:35
-    Given mon panier contient les produits suivants                  # features/steps/common_steps.py:71
+    Given le catalogue de produits est chargé depuis l'API           # None
+    Given mon panier contient les produits suivants                  # None
       | produit           | quantite |
       | Samsung galaxy s6 | 1        |
       | Nokia lumia 1520  | 1        |
-    When je supprime le produit "Nokia lumia 1520" du panier         # features/steps/common_steps.py:84
-    Then le total calculé correspond à la somme des prix × quantités # features/steps/common_steps.py:108
+    When je supprime le produit "Nokia lumia 1520" du panier         # None
+    Then le total calculé correspond à la somme des prix × quantités # None
 
   Scenario: Le total est identique du panier jusqu'à la confirmation  # features/panier/panier_total.feature:60
-    Given le catalogue de produits est chargé depuis l'API            # features/steps/common_steps.py:35
-    Given mon panier contient les produits suivants                   # features/steps/common_steps.py:71
+    Given le catalogue de produits est chargé depuis l'API            # None
+    Given mon panier contient les produits suivants                   # None
       | produit           | quantite |
       | Samsung galaxy s6 | 1        |
       | Nokia lumia 1520  | 1        |
-    When je passe la commande                                         # features/steps/common_steps.py:94
-    Then le total de la commande est identique au total du panier     # features/steps/common_steps.py:100
+    When je passe la commande                                         # None
+    Then le total de la commande est identique au total du panier     # None
 
   Scenario: Le total est affiché avec le bon format monétaire            # features/panier/panier_total.feature:73
-    Given le catalogue de produits est chargé depuis l'API               # features/steps/common_steps.py:35
-    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"          # features/steps/common_steps.py:59
-    Then le total est affiché avec le symbole "$" et 2 décimales exactes # features/steps/panier_total_steps.py:43
+    Given le catalogue de produits est chargé depuis l'API               # None
+    Given mon panier contient 1 unité(s) de "Samsung galaxy s6"          # None
+    Then le total est affiché avec le symbole "$" et 2 décimales exactes # None
 
 Feature: Sauvegarde du panier # features/panier/persistance_panier.feature:7
 
   Background:   # features/panier/persistance_panier.feature:9
 
   Scenario: Le panier est sauvegardé avec les produits et leurs quantités  # features/panier/persistance_panier.feature:17
-    Given le catalogue de produits est chargé depuis l'API                 # features/steps/common_steps.py:35
-    Given mon panier est vide                                              # features/steps/common_steps.py:44
-    And mon panier contient les produits suivants                          # features/steps/common_steps.py:71
+    Given le catalogue de produits est chargé depuis l'API                 # None
+    Given mon panier est vide                                              # None
+    And mon panier contient les produits suivants                          # None
       | produit           | quantite |
       | Samsung galaxy s6 | 2        |
       | Nokia lumia 1520  | 1        |
-    When je sauvegarde mon panier                                          # features/steps/persistance_panier.py:14
-    And je restaure mon panier                                             # features/steps/persistance_panier.py:23
-    Then le panier restauré contient les produits suivants                 # features/steps/persistance_panier.py:36
+    When je sauvegarde mon panier                                          # None
+    And je restaure mon panier                                             # None
+    Then le panier restauré contient les produits suivants                 # None
       | produit           | quantite |
       | Samsung galaxy s6 | 2        |
       | Nokia lumia 1520  | 1        |
 
   Scenario: La sauvegarde reflète la suppression d'un produit du panier    # features/panier/persistance_panier.feature:31
-    Given le catalogue de produits est chargé depuis l'API                 # features/steps/common_steps.py:35
-    Given mon panier est vide                                              # features/steps/common_steps.py:44
-    And mon panier contient les produits suivants                          # features/steps/common_steps.py:71
+    Given le catalogue de produits est chargé depuis l'API                 # None
+    Given mon panier est vide                                              # None
+    And mon panier contient les produits suivants                          # None
       | produit           | quantite |
       | Samsung galaxy s6 | 1        |
       | Nokia lumia 1520  | 1        |
-    When je supprime le produit "Nokia lumia 1520" du panier               # features/steps/common_steps.py:84
-    And je sauvegarde mon panier                                           # features/steps/persistance_panier.py:14
-    And je restaure mon panier                                             # features/steps/persistance_panier.py:23
-    Then le produit "Nokia lumia 1520" n'est plus présent dans le panier   # features/steps/persistance_panier.py:55
-    And le produit "Samsung galaxy s6" est toujours présent dans le panier # features/steps/persistance_panier.py:65
+    When je supprime le produit "Nokia lumia 1520" du panier               # None
+    And je sauvegarde mon panier                                           # None
+    And je restaure mon panier                                             # None
+    Then le produit "Nokia lumia 1520" n'est plus présent dans le panier   # None
+    And le produit "Samsung galaxy s6" est toujours présent dans le panier # None
 
   Scenario: Le panier sauvegardé peut être utilisé pour passer commande  # features/panier/persistance_panier.feature:44
-    Given le catalogue de produits est chargé depuis l'API               # features/steps/common_steps.py:35
-    Given mon panier est vide                                            # features/steps/common_steps.py:44
-    And mon panier contient les produits suivants                        # features/steps/common_steps.py:71
+    Given le catalogue de produits est chargé depuis l'API               # None
+    Given mon panier est vide                                            # None
+    And mon panier contient les produits suivants                        # None
       | produit           | quantite |
       | Samsung galaxy s6 | 2        |
       | Nokia lumia 1520  | 1        |
-    When je sauvegarde mon panier                                        # features/steps/persistance_panier.py:14
-    And je passe la commande                                             # features/steps/common_steps.py:94
-    Then le total de la commande est identique au total du panier        # features/steps/common_steps.py:100
+    When je sauvegarde mon panier                                        # None
+    And je passe la commande                                             # None
+    Then le total de la commande est identique au total du panier        # None
 
   Scenario: Le total du panier restauré est correct                  # features/panier/persistance_panier.feature:55
-    Given le catalogue de produits est chargé depuis l'API           # features/steps/common_steps.py:35
-    Given mon panier est vide                                        # features/steps/common_steps.py:44
-    And mon panier contient les produits suivants                    # features/steps/common_steps.py:71
+    Given le catalogue de produits est chargé depuis l'API           # None
+    Given mon panier est vide                                        # None
+    And mon panier contient les produits suivants                    # None
       | produit           | quantite |
       | Samsung galaxy s6 | 2        |
       | Nokia lumia 1520  | 1        |
-    When je sauvegarde mon panier                                    # features/steps/persistance_panier.py:14
-    And je restaure mon panier                                       # features/steps/persistance_panier.py:23
-    Then le total calculé correspond à la somme des prix × quantités # features/steps/common_steps.py:108
-
+    When je sauvegarde mon panier                                    # None
+    And je restaure mon panier                                       # None
+    Then le total calculé correspond à la somme des prix × quantités # None
