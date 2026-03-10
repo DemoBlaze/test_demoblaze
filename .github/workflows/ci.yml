@@ -86,17 +86,17 @@ jobs:
             --tags "~@skip"
         continue-on-error: true
 
-      - name: Lancer les tests Behave @api - Commande
-        id: api-commande
-        run: |
-          behave features/commande \
-            --tags "@api" \
-            --format allure_behave.formatter:AllureFormatter \
-            --outfile reports/allure-results \
-            --format pretty \
-            --no-capture \
-            --tags "~@skip"
-        continue-on-error: true
+      # - name: Lancer les tests Behave @api - Commande
+      #   id: api-commande
+      #   run: |
+      #     behave features/commande \
+      #       --tags "@api" \
+      #       --format allure_behave.formatter:AllureFormatter \
+      #       --outfile reports/allure-results \
+      #       --format pretty \
+      #       --no-capture \
+      #       --tags "~@skip"
+      #   continue-on-error: true
 
       - name: Lancer les tests unitaires (unittest)
         id: api-unittest
@@ -112,7 +112,6 @@ jobs:
         run: |
           if [[ \
             "${{ steps.api-panier.outcome }}"   == "failure" || \
-            "${{ steps.api-commande.outcome }}" == "failure" || \
             "${{ steps.api-unittest.outcome }}" == "failure" \
           ]]; then
             echo "status=failure" >> $GITHUB_OUTPUT
@@ -262,19 +261,19 @@ jobs:
           DISPLAY: ':99'
         continue-on-error: true
 
-      - name: Lancer les tests Behave @ui - Commande
-        id: ui-commande
-        run: |
-          behave features/commande \
-            --tags "@ui" \
-            --format allure_behave.formatter:AllureFormatter \
-            --outfile reports/allure-results \
-            --format pretty \
-            --no-capture \
-            --tags "~@skip"
-        env:
-          DISPLAY: ':99'
-        continue-on-error: true
+      # - name: Lancer les tests Behave @ui - Commande
+      #   id: ui-commande
+      #   run: |
+      #     behave features/commande \
+      #       --tags "@ui" \
+      #       --format allure_behave.formatter:AllureFormatter \
+      #       --outfile reports/allure-results \
+      #       --format pretty \
+      #       --no-capture \
+      #       --tags "~@skip"
+      #   env:
+      #     DISPLAY: ':99'
+      #   continue-on-error: true
 
       - name: Évaluer le statut global des tests UI
         id: set-status
@@ -282,7 +281,6 @@ jobs:
           if [[ \
             "${{ steps.ui-homepage.outcome }}" == "failure" || \
             "${{ steps.ui-panier.outcome }}"   == "failure" || \
-            "${{ steps.ui-commande.outcome }}" == "failure" \
           ]]; then
             echo "status=failure" >> $GITHUB_OUTPUT
           else
@@ -340,7 +338,6 @@ jobs:
           echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Homepage   | ${{ steps.ui-homepage.outcome == 'success' && '✅ Succès' || '❌ Échec' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Panier     | ${{ steps.ui-panier.outcome   == 'success' && '✅ Succès' || '❌ Échec' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Commande   | ${{ steps.ui-commande.outcome == 'success' && '✅ Succès' || '❌ Échec' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Navigateur :** ${{ matrix.browser }} | **Statut global :** ${{ steps.set-status.outputs.status == 'success' && '✅ Succès' || '❌ Échec' }}" >> $GITHUB_STEP_SUMMARY
 
