@@ -1,0 +1,55 @@
+name: Publier rapports Allure
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types:
+      - completed
+
+jobs:
+  publish-report:
+    name: Publier rapports Allure sur GitHub Pages
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Télécharger rapport Allure (chrome)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-chrome
+          path: allure-report-chrome/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Télécharger rapport Allure (firefox)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-firefox
+          path: allure-report-firefox/
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publier chrome sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report-chrome/
+          destination_dir: allure-chrome
+          keep_files: true
+
+      - name: Publier firefox sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report-firefox/
+          destination_dir: allure-firefox
+          keep_files: true
