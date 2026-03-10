@@ -186,7 +186,11 @@ jobs:
       # ── Setup Chrome ──
       - name: Setup Chrome
         if: matrix.browser == 'chrome'
-        uses: browser-actions/setup-chrome@latest
+        uses: browser-actions/setup-chrome@v2
+
+      - name: Verify Chrome installation
+        if: matrix.browser == 'chrome'
+        run: chrome --version
 
       - name: Setup ChromeDriver
         if: matrix.browser == 'chrome'
@@ -195,7 +199,15 @@ jobs:
       # FIX: Added missing `if` condition — Firefox is only installed when needed
       - name: Setup Firefox & Geckodriver
         if: matrix.browser == 'firefox'
-        uses: browser-actions/setup-firefox@latest
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Verify Firefox installation
+        if: matrix.browser == 'firefox'
+        run: firefox --version
+
+      - uses: actions/checkout@v4
+      - name: Run tests on ${{ matrix.browser }}
+        run: pytest tests/ --browser=${{ matrix.browser }}
 
       - name: Créer le fichier .env
         run: |
