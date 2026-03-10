@@ -28,7 +28,7 @@ jobs:
           cache: 'pip'
 
       - name: Installer les dépendances de lint
-        run: pip install -r requirements-dev.txt
+        run: pip install flake8 black
 
       - name: Vérifier le formatage (black)
         run: black --check .
