@@ -305,9 +305,6 @@ jobs:
           SQUASH_TOKEN: ${{ secrets.SQUASH_TOKEN }}
         continue-on-error: true
 
-      # FIX 1: Fusion des deux steps "Résumé des tests" en un seul bloc bash valide.
-      # Le premier avait du code orphelin après son fi (else sans if correspondant).
-      # Le second se terminait par un exit 1 inconditionnel qui faisait toujours échouer.
       - name: Résumé des tests
         if: always()
         run: |
@@ -344,38 +341,46 @@ jobs:
           exit 1
 
 
-  # ── Job 4 : Publication Allure sur GitHub Pages (main uniquement) ──────────
-  publish-report:
-    name: Publier rapport Allure (${{ matrix.browser }})
-    runs-on: ubuntu-latest
-    needs: [test-api, test-ui]
-    if: github.ref == 'refs/heads/main'
+          # ── Job 4 : Publication Allure sur GitHub Pages (main uniquement) ──────────
+          publish-report:
+            name: Publier rapports Allure sur GitHub Pages
+            runs-on: ubuntu-latest
+            needs: [test-api, test-ui]
+            if: github.ref == 'refs/heads/main'
 
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chrome, firefox]
+            permissions:
+              contents: write
+              pages: write
+              id-token: write
 
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
+            steps:
+              - name: Checkout du code
+                uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout du code
-        uses: actions/checkout@v4
+              - name: Télécharger rapport Allure (chrome)
+                uses: actions/download-artifact@v4
+                with:
+                  name: allure-report-chrome
+                  path: allure-report-chrome/
 
-      - name: Télécharger rapport Allure (${{ matrix.browser }})
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-report-${{ matrix.browser }}
-          path: allure-report/
+              - name: Télécharger rapport Allure (firefox)
+                uses: actions/download-artifact@v4
+                with:
+                  name: allure-report-firefox
+                  path: allure-report-firefox/
 
-      # FIX 3: Step de publication dupliqué à l'identique — suppression du doublon.
-      - name: Publier sur GitHub Pages (allure-${{ matrix.browser }})
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: allure-report/
-          destination_dir: allure-${{ matrix.browser }}
-          keep_files: true
+              - name: Publier chrome sur GitHub Pages
+                uses: peaceiris/actions-gh-pages@v4
+                with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: allure-report-chrome/
+                  destination_dir: allure-chrome
+                  keep_files: true
+
+              - name: Publier firefox sur GitHub Pages
+                uses: peaceiris/actions-gh-pages@v4
+                with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: allure-report-firefox/
+                  destination_dir: allure-firefox
+                  keep_files: true
