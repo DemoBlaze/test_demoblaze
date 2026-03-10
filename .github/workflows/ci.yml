@@ -167,6 +167,12 @@ jobs:
           sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
           allure --version
 
+      - name: Vérifier la configuration
+        run: |
+          echo "BASE_URL=$(grep BASE_URL .env)"
+          echo "HOME_URL sera : $(python -c 'from config.settings import HOME_URL; print(HOME_URL)')"
+
+
       # ── Setup Chrome ──
       - name: Setup Chrome
         if: matrix.browser == 'chrome'
