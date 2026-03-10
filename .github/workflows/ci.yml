@@ -8,10 +8,9 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.11'
+  PYTHON_VERSION: "3.11"
 
 jobs:
-
   # ── Job 1 : Lint & vérification ────────────────────────────────────────────
   lint:
     name: Lint du code
@@ -25,7 +24,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Installer les dépendances de lint
         run: pip install flake8 black
@@ -38,7 +37,6 @@ jobs:
           flake8 . \
             --max-line-length=120 \
             --exclude=.git,__pycache__,reports,.venv
-
 
   # ── Job 2 : Tests API & logique pure (@api) ────────────────────────────────
   test-api:
@@ -57,7 +55,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Installer les dépendances Python
         run: pip install -r requirements.txt
@@ -132,7 +130,6 @@ jobs:
           path: reports/allure-results/
           retention-days: 30
 
-
   # ── Job 3 : Tests UI Selenium (@ui) ───────────────────────────────────────
   test-ui:
     name: Tests UI (${{ matrix.browser }})
@@ -155,7 +152,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: "pip"
 
       - name: Installer les dépendances Python
         run: pip install -r requirements.txt
@@ -171,7 +168,6 @@ jobs:
         run: |
           echo "BASE_URL=$(grep BASE_URL .env)"
           echo "HOME_URL sera : $(python -c 'from config.settings import HOME_URL; print(HOME_URL)')"
-
 
       # ── Setup Chrome ──
       - name: Setup Chrome
@@ -231,7 +227,7 @@ jobs:
             --no-capture \
             --tags "~@skip"
         env:
-          DISPLAY: ':99'
+          DISPLAY: ":99"
         continue-on-error: true
 
       - name: Lancer les tests Behave @ui - Panier
@@ -245,7 +241,7 @@ jobs:
             --no-capture \
             --tags "~@skip"
         env:
-          DISPLAY: ':99'
+          DISPLAY: ":99"
         continue-on-error: true
 
       - name: Évaluer le statut global des tests UI
@@ -333,54 +329,52 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Navigateur :** ${{ matrix.browser }} | **Statut global :** $GLOBAL_STATUS" >> $GITHUB_STEP_SUMMARY
 
-      # FIX 2: Step manquant dans le job UI — présent dans le job API mais absent ici.
       - name: Échouer si des tests ont échoué
         if: steps.set-status.outputs.status == 'failure'
         run: |
           echo "One or more UI test steps failed on ${{ matrix.browser }}."
           exit 1
 
+  # ── Job 4 : Publication Allure sur GitHub Pages (main uniquement) ──────────
+  publish-report:
+    name: Publier rapports Allure sur GitHub Pages
+    runs-on: ubuntu-latest
+    needs: [test-api, test-ui]
+    if: github.ref == 'refs/heads/main'
 
-          # ── Job 4 : Publication Allure sur GitHub Pages (main uniquement) ──────────
-          publish-report:
-            name: Publier rapports Allure sur GitHub Pages
-            runs-on: ubuntu-latest
-            needs: [test-api, test-ui]
-            if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      pages: write
+      id-token: write
 
-            permissions:
-              contents: write
-              pages: write
-              id-token: write
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
 
-            steps:
-              - name: Checkout du code
-                uses: actions/checkout@v4
+      - name: Télécharger rapport Allure (chrome)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-chrome
+          path: allure-report-chrome/
 
-              - name: Télécharger rapport Allure (chrome)
-                uses: actions/download-artifact@v4
-                with:
-                  name: allure-report-chrome
-                  path: allure-report-chrome/
+      - name: Télécharger rapport Allure (firefox)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report-firefox
+          path: allure-report-firefox/
 
-              - name: Télécharger rapport Allure (firefox)
-                uses: actions/download-artifact@v4
-                with:
-                  name: allure-report-firefox
-                  path: allure-report-firefox/
+      - name: Publier chrome sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report-chrome/
+          destination_dir: allure-chrome
+          keep_files: true
 
-              - name: Publier chrome sur GitHub Pages
-                uses: peaceiris/actions-gh-pages@v4
-                with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: allure-report-chrome/
-                  destination_dir: allure-chrome
-                  keep_files: true
-
-              - name: Publier firefox sur GitHub Pages
-                uses: peaceiris/actions-gh-pages@v4
-                with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
-                  publish_dir: allure-report-firefox/
-                  destination_dir: allure-firefox
-                  keep_files: true
+      - name: Publier firefox sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-report-firefox/
+          destination_dir: allure-firefox
+          keep_files: true
