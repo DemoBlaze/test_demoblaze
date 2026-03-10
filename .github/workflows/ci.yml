@@ -86,17 +86,17 @@ jobs:
             --tags "~@skip"
         continue-on-error: true
 
-      # - name: Lancer les tests Behave @api - Commande
-      #   id: api-commande
-      #   run: |
-      #     behave features/commande \
-      #       --tags "@api" \
-      #       --format allure_behave.formatter:AllureFormatter \
-      #       --outfile reports/allure-results \
-      #       --format pretty \
-      #       --no-capture \
-      #       --tags "~@skip"
-      #   continue-on-error: true
+      - name: Lancer les tests Behave @api - Commande
+        id: api-commande
+        run: |
+          behave features/commande \
+            --tags "@api" \
+            --format allure_behave.formatter:AllureFormatter \
+            --outfile reports/allure-results \
+            --format pretty \
+            --no-capture \
+            --tags "~@skip"
+        continue-on-error: true
 
       - name: Lancer les tests unitaires (unittest)
         id: api-unittest
@@ -110,12 +110,14 @@ jobs:
       - name: Évaluer le statut global des tests API
         id: set-status
         run: |
-          if [[ \
-            "${{ steps.api-panier.outcome }}"   == "failure" || \
-            "${{ steps.api-unittest.outcome }}" == "failure" \
-          ]]; then
+          FAILED=""
+          [ "${{ steps.api-panier.outcome }}"   = "failure" ] && FAILED="$FAILED panier"
+          [ "${{ steps.api-commande.outcome }}" = "failure" ] && FAILED="$FAILED commande"
+          [ "${{ steps.api-unittest.outcome }}" = "failure" ] && FAILED="$FAILED unittest"
+
+          if [ -n "$FAILED" ]; then
             echo "status=failure" >> $GITHUB_OUTPUT
-            echo "❌ Des tests API ont échoué." >> $GITHUB_STEP_SUMMARY
+            echo "❌ Steps en échec :$FAILED" >> $GITHUB_STEP_SUMMARY
           else
             echo "status=success" >> $GITHUB_OUTPUT
             echo "✅ Tous les tests API ont réussi." >> $GITHUB_STEP_SUMMARY
@@ -261,30 +263,34 @@ jobs:
           DISPLAY: ':99'
         continue-on-error: true
 
-      # - name: Lancer les tests Behave @ui - Commande
-      #   id: ui-commande
-      #   run: |
-      #     behave features/commande \
-      #       --tags "@ui" \
-      #       --format allure_behave.formatter:AllureFormatter \
-      #       --outfile reports/allure-results \
-      #       --format pretty \
-      #       --no-capture \
-      #       --tags "~@skip"
-      #   env:
-      #     DISPLAY: ':99'
-      #   continue-on-error: true
+      - name: Lancer les tests Behave @ui - Commande
+        id: ui-commande
+        run: |
+          behave features/commande \
+            --tags "@ui" \
+            --format allure_behave.formatter:AllureFormatter \
+            --outfile reports/allure-results \
+            --format pretty \
+            --no-capture \
+            --tags "~@skip"
+        env:
+          DISPLAY: ':99'
+        continue-on-error: true
 
       - name: Évaluer le statut global des tests UI
         id: set-status
         run: |
-          if [[ \
-            "${{ steps.ui-homepage.outcome }}" == "failure" || \
-            "${{ steps.ui-panier.outcome }}"   == "failure" || \
-          ]]; then
+          FAILED=""
+          [ "${{ steps.ui-homepage.outcome }}" = "failure" ] && FAILED="$FAILED homepage"
+          [ "${{ steps.ui-panier.outcome }}"   = "failure" ] && FAILED="$FAILED panier"
+          [ "${{ steps.ui-commande.outcome }}" = "failure" ] && FAILED="$FAILED commande"
+
+          if [ -n "$FAILED" ]; then
             echo "status=failure" >> $GITHUB_OUTPUT
+            echo "❌ Steps en échec :$FAILED" >> $GITHUB_STEP_SUMMARY
           else
             echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ Tous les tests UI ont réussi." >> $GITHUB_STEP_SUMMARY
           fi
 
       # ── Générer et uploader le rapport Allure ──
@@ -338,6 +344,7 @@ jobs:
           echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Homepage   | ${{ steps.ui-homepage.outcome == 'success' && '✅ Succès' || '❌ Échec' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Panier     | ${{ steps.ui-panier.outcome   == 'success' && '✅ Succès' || '❌ Échec' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commande   | ${{ steps.ui-commande.outcome == 'success' && '✅ Succès' || '❌ Échec' }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Navigateur :** ${{ matrix.browser }} | **Statut global :** ${{ steps.set-status.outputs.status == 'success' && '✅ Succès' || '❌ Échec' }}" >> $GITHUB_STEP_SUMMARY
 
