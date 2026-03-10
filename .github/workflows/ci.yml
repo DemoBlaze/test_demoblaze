@@ -339,7 +339,7 @@ jobs:
   publish-report:
     name: Publier rapports Allure sur GitHub Pages
     runs-on: ubuntu-latest
-    needs: [test-api, test-ui]
+    needs: [test-api, test-ui, test-api-postman]
     if: github.ref == 'refs/heads/main'
 
     permissions:
@@ -383,6 +383,14 @@ jobs:
         with:
           name: allure-results-postman
           path: allure-results-postman/
+
+      - name: Publier Postman sur GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: allure-results-postman/
+          destination_dir: allure-postman
+          keep_files: true
 
   # ── Job : Tests Postman / Newman ──────────────────────────────────────────
   test-api-postman:
