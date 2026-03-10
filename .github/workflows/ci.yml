@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  PYTHON_VERSION: '3.13'
+  PYTHON_VERSION: '3.11'
 
 jobs:
 
@@ -177,11 +177,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Installer Allure CLI
-        run: |
-          wget -qO- https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz | tar -xz
-          sudo mv allure-2.27.0 /opt/allure
-          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
-          allure --version
+        uses: simple-elf/allure-report-action@v1.8
 
       # ── Setup Chrome ──
       - name: Setup Chrome
