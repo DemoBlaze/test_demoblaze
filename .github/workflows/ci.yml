@@ -1,0 +1,386 @@
+name: CI - Tests BDD Behave, Selenium & API
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+
+  # ── Job 1 : Lint & vérification ────────────────────────────────────────────
+  lint:
+    name: Lint du code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Installer les dépendances de lint
+        run: pip install flake8 black
+
+      - name: Vérifier le formatage (black)
+        run: black --check .
+
+      - name: Vérifier le style (flake8)
+        run: |
+          flake8 . \
+            --max-line-length=120 \
+            --exclude=.git,__pycache__,reports,.venv
+
+
+  # ── Job 2 : Tests API & logique pure (@api) ────────────────────────────────
+  test-api:
+    name: Tests API & logique
+    runs-on: ubuntu-latest
+    needs: lint
+
+    outputs:
+      test_status: ${{ steps.set-status.outputs.status }}
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Installer les dépendances Python
+        run: pip install -r requirements.txt
+
+      - name: Créer le fichier .env
+        run: |
+          touch .env
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+          echo "HEADLESS=true" >> .env
+
+      - name: Créer les dossiers reports
+        run: |
+          mkdir -p reports/allure-results
+          mkdir -p reports/allure-report
+          mkdir -p reports/screenshots
+
+      - name: Lancer les tests Behave @api - Panier
+        id: api-panier
+        run: |
+          behave features/panier \
+            --tags "@api" \
+            --format allure_behave.formatter:AllureFormatter \
+            --outfile reports/allure-results \
+            --format pretty \
+            --no-capture \
+            --tags "~@skip"
+        continue-on-error: true
+
+      - name: Lancer les tests unitaires (unittest)
+        id: api-unittest
+        run: |
+          python -m unittest discover \
+            -s api_tests \
+            -p "*.py" \
+            -v 2>&1 | tee reports/api-results.txt
+        continue-on-error: true
+
+      - name: Évaluer le statut global des tests API
+        id: set-status
+        run: |
+          FAILED=""
+          [ "${{ steps.api-panier.outcome }}"   = "failure" ] && FAILED="$FAILED panier"
+          [ "${{ steps.api-unittest.outcome }}" = "failure" ] && FAILED="$FAILED unittest"
+
+          if [ -n "$FAILED" ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "❌ Steps en échec :$FAILED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ Tous les tests API ont réussi." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Échouer si des tests ont échoué
+        if: steps.set-status.outputs.status == 'failure'
+        run: |
+          echo "One or more API test steps failed."
+          exit 1
+
+      - name: Upload résultats API
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-test-results
+          path: reports/api-results.txt
+          retention-days: 30
+
+      - name: Upload résultats Allure (API)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-api
+          path: reports/allure-results/
+          retention-days: 30
+
+
+  # ── Job 3 : Tests UI Selenium (@ui) ───────────────────────────────────────
+  test-ui:
+    name: Tests UI (${{ matrix.browser }})
+    runs-on: ubuntu-latest
+    needs: lint
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox]
+
+    outputs:
+      test_status: ${{ steps.set-status.outputs.status }}
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Installer les dépendances Python
+        run: pip install -r requirements.txt
+
+      - name: Installer Allure CLI
+        run: |
+          wget -qO- https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz | tar -xz
+          sudo mv allure-2.27.0 /opt/allure
+          sudo ln -s /opt/allure/bin/allure /usr/local/bin/allure
+          allure --version
+
+      - name: Vérifier la configuration
+        run: |
+          echo "BASE_URL=$(grep BASE_URL .env)"
+          echo "HOME_URL sera : $(python -c 'from config.settings import HOME_URL; print(HOME_URL)')"
+
+
+      # ── Setup Chrome ──
+      - name: Setup Chrome
+        if: matrix.browser == 'chrome'
+        uses: browser-actions/setup-chrome@v2
+
+      - name: Verify Chrome installation
+        if: matrix.browser == 'chrome'
+        run: chrome --version
+
+      - name: Setup ChromeDriver
+        if: matrix.browser == 'chrome'
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Setup Firefox & Geckodriver
+        if: matrix.browser == 'firefox'
+        uses: browser-actions/setup-firefox@v1
+
+      - name: Verify Firefox installation
+        if: matrix.browser == 'firefox'
+        run: firefox --version
+
+      - name: Créer le fichier .env
+        run: |
+          cp .env.example .env
+          echo "BASE_URL=\"${{ secrets.BASE_URL }}\"" >> .env
+          echo "BROWSER=\"${{ matrix.browser }}\"" >> .env
+          echo "HEADLESS=\"true\"" >> .env
+          echo "JIRA_URL=\"${{ secrets.JIRA_URL }}\"" >> .env
+          echo "JIRA_TOKEN=\"${{ secrets.JIRA_TOKEN }}\"" >> .env
+          echo "SQUASH_URL=\"${{ secrets.SQUASH_URL }}\"" >> .env
+          echo "SQUASH_TOKEN=\"${{ secrets.SQUASH_TOKEN }}\"" >> .env
+
+      - name: Créer les dossiers reports
+        run: |
+          mkdir -p reports/allure-results
+          mkdir -p reports/allure-report
+          mkdir -p reports/screenshots
+
+      - name: Restaurer l'historique Allure depuis artifact
+        if: github.ref == 'refs/heads/main'
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-history-${{ matrix.browser }}
+          path: reports/allure-results/history
+        continue-on-error: true
+
+      # ── Lancer les tests @ui ──
+      - name: Lancer les tests Behave @ui - Homepage
+        id: ui-homepage
+        run: |
+          behave features/homepage \
+            --tags "@ui" \
+            --format allure_behave.formatter:AllureFormatter \
+            --outfile reports/allure-results \
+            --format pretty \
+            --no-capture \
+            --tags "~@skip"
+        env:
+          DISPLAY: ':99'
+        continue-on-error: true
+
+      - name: Lancer les tests Behave @ui - Panier
+        id: ui-panier
+        run: |
+          behave features/panier \
+            --tags "@ui" \
+            --format allure_behave.formatter:AllureFormatter \
+            --outfile reports/allure-results \
+            --format pretty \
+            --no-capture \
+            --tags "~@skip"
+        env:
+          DISPLAY: ':99'
+        continue-on-error: true
+
+      - name: Évaluer le statut global des tests UI
+        id: set-status
+        run: |
+          FAILED=""
+          [ "${{ steps.ui-homepage.outcome }}" = "failure" ] && FAILED="$FAILED homepage"
+          [ "${{ steps.ui-panier.outcome }}"   = "failure" ] && FAILED="$FAILED panier"
+
+          if [ -n "$FAILED" ]; then
+            echo "status=failure" >> $GITHUB_OUTPUT
+            echo "❌ Steps en échec :$FAILED" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "status=success" >> $GITHUB_OUTPUT
+            echo "✅ Tous les tests UI ont réussi." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # ── Générer et uploader le rapport Allure ──
+      - name: Générer le rapport Allure
+        if: always()
+        run: |
+          allure generate reports/allure-results \
+            --output reports/allure-report \
+            --clean
+
+      - name: Upload rapport Allure (${{ matrix.browser }})
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report-${{ matrix.browser }}
+          path: reports/allure-report/
+          retention-days: 30
+
+      - name: Upload screenshots (échecs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ matrix.browser }}
+          path: reports/screenshots/
+          retention-days: 15
+          if-no-files-found: ignore
+
+      # ── Notifier Jira/Squash (seulement sur main) ──
+      - name: Reporter vers Jira
+        if: always() && github.ref == 'refs/heads/main'
+        run: python utils/jira_reporter.py
+        env:
+          JIRA_URL: ${{ secrets.JIRA_URL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+        continue-on-error: true
+
+      - name: Reporter vers Squash
+        if: always() && github.ref == 'refs/heads/main'
+        run: python utils/squash_reporter.py
+        env:
+          SQUASH_URL: ${{ secrets.SQUASH_URL }}
+          SQUASH_TOKEN: ${{ secrets.SQUASH_TOKEN }}
+        continue-on-error: true
+
+      - name: Résumé des tests
+        if: always()
+        run: |
+          if [ "${{ steps.ui-homepage.outcome }}" = "success" ]; then
+            HOMEPAGE_STATUS="✅ Succès"
+          else
+            HOMEPAGE_STATUS="❌ Échec"
+          fi
+          if [ "${{ steps.ui-panier.outcome }}" = "success" ]; then
+            PANIER_STATUS="✅ Succès"
+          else
+            PANIER_STATUS="❌ Échec"
+          fi
+          if [ "${{ steps.set-status.outputs.status }}" = "success" ]; then
+            GLOBAL_STATUS="✅ Succès"
+          else
+            GLOBAL_STATUS="❌ Échec"
+          fi
+
+          echo "## 📊 Résultats des tests UI — ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Scénario   | Statut |" >> $GITHUB_STEP_SUMMARY
+          echo "|------------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Homepage   | $HOMEPAGE_STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Panier     | $PANIER_STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Navigateur :** ${{ matrix.browser }} | **Statut global :** $GLOBAL_STATUS" >> $GITHUB_STEP_SUMMARY
+
+      # FIX 2: Step manquant dans le job UI — présent dans le job API mais absent ici.
+      - name: Échouer si des tests ont échoué
+        if: steps.set-status.outputs.status == 'failure'
+        run: |
+          echo "One or more UI test steps failed on ${{ matrix.browser }}."
+          exit 1
+
+
+          # ── Job 4 : Publication Allure sur GitHub Pages (main uniquement) ──────────
+          publish-report:
+            name: Publier rapports Allure sur GitHub Pages
+            runs-on: ubuntu-latest
+            needs: [test-api, test-ui]
+            if: github.ref == 'refs/heads/main'
+
+            permissions:
+              contents: write
+              pages: write
+              id-token: write
+
+            steps:
+              - name: Checkout du code
+                uses: actions/checkout@v4
+
+              - name: Télécharger rapport Allure (chrome)
+                uses: actions/download-artifact@v4
+                with:
+                  name: allure-report-chrome
+                  path: allure-report-chrome/
+
+              - name: Télécharger rapport Allure (firefox)
+                uses: actions/download-artifact@v4
+                with:
+                  name: allure-report-firefox
+                  path: allure-report-firefox/
+
+              - name: Publier chrome sur GitHub Pages
+                uses: peaceiris/actions-gh-pages@v4
+                with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: allure-report-chrome/
+                  destination_dir: allure-chrome
+                  keep_files: true
+
+              - name: Publier firefox sur GitHub Pages
+                uses: peaceiris/actions-gh-pages@v4
+                with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: allure-report-firefox/
+                  destination_dir: allure-firefox
+                  keep_files: true

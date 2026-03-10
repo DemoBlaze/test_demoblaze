@@ -1,0 +1,24 @@
+# .coveragerc
+[run]
+source =
+    api_tests
+    pages
+    features/steps
+
+omit =
+    */test_*.py
+    */__init__.py
+    */settings.py
+
+branch = True
+
+[report]
+show_missing  = True
+fail_under    = 80
+
+[html]
+directory = reports/coverage-html
+title     = QA Coverage — Ecommerce
+
+[xml]
+output = reports/coverage.xml
