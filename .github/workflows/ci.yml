@@ -205,9 +205,9 @@ jobs:
         if: matrix.browser == 'firefox'
         run: firefox --version
 
-      - uses: actions/checkout@v4
-      - name: Run tests on ${{ matrix.browser }}
-        run: pytest tests/ --browser=${{ matrix.browser }}
+      # FIX: Suppression du double checkout et de l'appel pytest prématuré
+      # (pytest était appelé avant la création du .env et des dossiers reports,
+      #  et le checkout était déjà effectué en début de job)
 
       - name: Créer le fichier .env
         run: |
