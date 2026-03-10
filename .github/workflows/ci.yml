@@ -403,9 +403,9 @@ jobs:
       - name: Lancer la collection Postman
         run: |
           newman run collection.json \
-            --environment environment.json \
-            --reporters cli,allure \
-            --reporter-allure-export reports/allure-results
+            --env-var "BASE_URL=${{ secrets.BASE_URL }}" \
+            --reporters cli,allure2 \
+            --reporter-allure2-export reports/allure-results
         continue-on-error: true
 
       - name: Upload résultats Allure (Postman)
