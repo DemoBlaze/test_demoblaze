@@ -404,19 +404,24 @@ jobs:
 
       - name: Installer Newman
         run: |
-          npm install -g newman
-          npm install -g newman-reporter-allure
+          npm install newman newman-reporter-allure  # ← local install, NOT -g
 
       - name: Créer les dossiers reports
         run: mkdir -p reports/allure-results
 
       - name: Lancer la collection Postman
         run: |
-          newman run collection.json \
+          npx newman run collection.json \           # ← npx to use local install
             --env-var "BASE_URL=${{ secrets.BASE_URL }}" \
             --reporters cli,allure \
             --reporter-allure-export reports/allure-results
-        continue-on-error: true
+
+      - name: Debug - list files
+        if: always()
+        run: |
+          echo "=== reports/allure-results/ ==="
+          ls -la reports/allure-results/ || echo "Directory is empty or missing"
+
       - name: Debug - list files
         if: always()
         run: |
