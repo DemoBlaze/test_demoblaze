@@ -411,8 +411,8 @@ jobs:
 
       - name: Lancer la collection Postman
         run: |
-          npx newman run collection.json \           # ← npx to use local install
-            --env-var "BASE_URL=${{ secrets.BASE_URL }}" \
+          npx newman run collection.json \
+            --env-var "BASE_URL=https://api.demoblaze.com" \
             --reporters cli,allure \
             --reporter-allure-export reports/allure-results
 
