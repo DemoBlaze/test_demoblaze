@@ -395,7 +395,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Installer Newman
-        run: npm install -g newman newman-reporter-allure
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-allure
 
       - name: Créer les dossiers reports
         run: mkdir -p reports/allure-results
@@ -404,8 +406,8 @@ jobs:
         run: |
           newman run collection.json \
             --env-var "BASE_URL=${{ secrets.BASE_URL }}" \
-            --reporters cli,allure2 \
-            --reporter-allure2-export reports/allure-results
+            --reporters cli,allure \
+            --reporter-allure-export reports/allure-results
         continue-on-error: true
 
       - name: Upload résultats Allure (Postman)
