@@ -4,12 +4,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-BASE_URL = os.getenv("BASE_URL", "https://www.demoblaze.com/")
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.demoblaze.com/")
-BROWSER = os.getenv("BROWSER", "chrome")
-TIMEOUT = int(os.getenv("TIMEOUT", "10"))
+# ── URLs ───────────────────────────────────────────────────
+# strip("/") évite le double slash si BASE_URL a un trailing slash
+BASE_URL = os.getenv("BASE_URL", "https://www.demoblaze.com").rstrip("/")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.demoblaze.com").rstrip("/")
 
-# URLs des pages
 HOME_URL = f"{BASE_URL}/index.html"
 CART_URL = f"{BASE_URL}/cart.html"
 
@@ -25,7 +24,5 @@ EXPLICIT_WAIT = int(os.getenv("EXPLICIT_WAIT", "30"))
 TEST_USERNAME = os.getenv("TEST_USERNAME", "")
 TEST_PASSWORD = os.getenv("TEST_PASSWORD", "")
 
-
-# ── User Credentials ────────────────────────────────────────
 TEST_USER_EMAIL = os.getenv("TEST_USER_EMAIL")
 TEST_USER_PASSWORD = os.getenv("TEST_USER_PASSWORD")
