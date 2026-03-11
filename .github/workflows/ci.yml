@@ -378,3 +378,50 @@ jobs:
           publish_dir: allure-report-firefox/
           destination_dir: allure-firefox
           keep_files: true
+      - name: Télécharger résultats Allure (Postman)
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-results-postman
+          path: allure-results-postman/
+
+  # ── Job : Tests Postman / Newman ──────────────────────────────────────────
+  test-api-postman:
+    name: Tests API Postman (Newman)
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Installer Newman
+        run: |
+          npm install -g newman
+          npm install -g newman-reporter-allure
+
+      - name: Créer les dossiers reports
+        run: mkdir -p reports/allure-results
+
+      - name: Lancer la collection Postman
+        run: |
+          newman run collection.json \
+            --env-var "BASE_URL=${{ secrets.BASE_URL }}" \
+            --reporters cli,allure \
+            --reporter-allure-export reports/allure-results
+        continue-on-error: true
+      - name: Debug - list files
+        if: always()
+        run: |
+          echo "=== Current directory ==="
+          pwd
+          echo "=== All files ==="
+          find . -name "*.json" -o -name "*.xml" | head -50
+          echo "=== reports/ folder ==="
+          ls -la reports/ || echo "reports/ does not exist"
+      - name: Upload résultats Allure (Postman)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-postman
+          path: reports/allure-results/
+          retention-days: 30
